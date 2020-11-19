@@ -7,9 +7,11 @@ To run:
 
     python3 embed_qtconsole.py
 """
+import json
 import os
 import site
 
+from pathlib import Path
 from typing import List
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -19,7 +21,38 @@ import moprivate
 
 site.addsitedir(os.path.join(os.path.dirname(__file__), "lib"))
 
+from pyqtconsole.commandhistory import CommandHistory  # noqa: E402
 from pyqtconsole.console import PythonConsole  # noqa: E402
+
+history_file = Path(__file__).parent.joinpath("history.json")
+
+
+class PersistentCommandHistory(CommandHistory):
+
+    _json: List[str]
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self._json = []
+        if history_file.exists():
+            with open(history_file, "r") as fp:
+                self._json = json.load(fp)
+                for command in self._json:
+                    super().add(command)
+
+    def add(self, str_):
+        super().add(str_)
+
+        if str_:
+            if str_ in self._json:
+                self._json.remove(str_)
+            self._json.append(str_)
+
+            # Keep only the 100 last lines:
+            self._json = self._json[-100:]
+            with open(history_file, "w") as fp:
+                json.dump(self._json, fp, indent=2)
 
 
 class InfinitePythonConsole(PythonConsole):
@@ -29,6 +62,8 @@ class InfinitePythonConsole(PythonConsole):
         self._show_ps = lambda *args: None
 
         super().__init__(*args, **kwargs)
+
+        self.command_history = PersistentCommandHistory(self)
 
         styles = self.pbar.highlighter.styles
         self.pbar.highlighter.rules = [
@@ -104,17 +139,13 @@ class IPythonDebugPlugin(mobase.IPluginTool):
         return "Holt59"
 
     def description(self) -> str:
-        return self._tr("Run IPython from MO2")
+        return self._tr("Run Python from MO2")
 
     def version(self) -> mobase.VersionInfo:
-        return mobase.VersionInfo(1, 0, 0, mobase.ReleaseType.FINAL)
-
-    def isActive(self) -> bool:
-        return self._organizer.pluginSetting(self.name(), "enabled")
+        return mobase.VersionInfo(1, 0, 1, mobase.ReleaseType.FINAL)
 
     def settings(self) -> List[mobase.PluginSetting]:
         return [
-            mobase.PluginSetting("enabled", "enable this plugin", True),
             mobase.PluginSetting(
                 "font family", "font family for the terminal", "Courier New"
             ),
