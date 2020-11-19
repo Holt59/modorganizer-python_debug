@@ -6,8 +6,8 @@ offers a Python interpreter within MO2.
 ## Installation
 
 To install, go to the [releases](https://github.com/Holt59/modorganizer-python_debug/releases) page and
-download the latest release (`python-debug.zip`).
-Extract `python-debug.zip` in your MO2 `plugins/python-debug` folder.
+download the latest release (`python_debug-x.y.z.zip`).
+Extract the archive in your MO2 `plugins/` folder (you should get a `plugins/python_debug` folder).
 
 ## Usage
 

@@ -1,4 +1,10 @@
+# IDE / Python
 .vscode
 __pycache__
-python-debug.zip
-lib/**
+
+# Release
+src/lib
+/*.zip
+**/history.json
+/__init__.py
+/python_debug
