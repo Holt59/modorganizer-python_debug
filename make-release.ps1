@@ -7,6 +7,7 @@ $target = ".\python_debug\"
 Remove-Item -Recurse -Force -ErrorAction Ignore $target
 New-Item -Path $target -Type Directory | Out-Null
 Copy-Item -Force -Recurse -Path .\src\* -Exclude "*.ui", "__pycache__", "history.json" -Destination $target
+Copy-Item -Force -Recurse -Path .\res -Destination $target
 Copy-Item .\README.md, .\LICENSE $target
 
 # Find the version:
